@@ -8,7 +8,6 @@ const whileList = [
 
 const corsOptions = {
     origin: (origin, callback) => {
-        console.log("origin: ", origin)
         if (whileList.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
