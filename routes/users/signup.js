@@ -5,6 +5,7 @@ import { User } from '../../models/Users.js';
 import { JWT_SECRET } from "../../config/env.js";
 // import { v4 as uuid} from 'uuid';
 
+
 export const signup = async (req, res, next) => {
 
     const { email, password } = req.body;
