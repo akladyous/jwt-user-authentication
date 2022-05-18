@@ -11,19 +11,18 @@ dbConnect();
 const app = express();
 const PORT = 4000;
 
-
-app.use(session({
-    httpOnly: true,
-    sameSite: false,
-    name: "mySession",
-    keys: ["uno", "due"],
-    secret: "ciao a tutti",
-    secret: "supersecret difficult to guess string",
-    cookie: {},
-    resave: false,
-    saveUninitialized: false,
-    sameSite: true,
-}))
+app.use(
+    session({
+        // httpOnly: true,
+        name: "mySession",
+        // keys: ["uno", "due"],
+        cookie: { maxAge: 1000 * 60 * 60 * 24 },
+        resave: false,
+        saveUninitialized: true,
+        sameSite: true,
+        secret: "my secret",
+    })
+);
 
 // custom logger middleware
 app.use((req, res, next) =>{
@@ -43,9 +42,27 @@ app.use("/", root);
 app.use("/delay", delay);
 app.use("/api", users)
 
-app.use("/home", (req, res, next) =>{
-    req.session.user = 'guest'
-    return res.status(200).sendFile(path.join(__dirname, 'views', 'home.html'))
+app.get("/home", (req, res, next) =>{
+    const Store = session.Store;
+    const SessionStore = (options) => {
+        Store.call(this, options)
+    };
+    SessionStore.prototype.__proto__ = Store.prototype;
+
+    const {email, password} = req.body;
+    console.log("session: ", req.session)
+    console.log('--------------------------')
+    if (req.session.counter){
+        req.session.counter = req.session.counter + 1;
+    } else {
+        req.session.counter = 1
+    }
+    
+
+    
+    console.log("session: ", req.session)
+    res.send(`<h1> session: ${req.session.counter} </h1>`)
+    // return res.status(200).sendFile(path.join(__dirname, 'views', 'home.html'))
 })
 
 app.all("*", (req, res, next) =>{

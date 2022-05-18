@@ -8,6 +8,10 @@ export const signin = async (req, res, next) => {
     error.status = 401
     const { email, password } = req.body;
 
+    const session = req.session;
+    session.email = email;
+
+
     if (!email && !password) {
         return next(error)
     }
@@ -22,6 +26,7 @@ export const signin = async (req, res, next) => {
     if (!validPassword){
         return res.status(500).json({ error: 'Unauthorized User' });
     }
+
     jwt.sign(
         { id: user._id.toString(), email: user.email, active: user.active },
         JWT_SECRET,
