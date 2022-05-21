@@ -1,13 +1,13 @@
-import path from 'path'
+// import path from "path";
 
-export const errorHandler = (err, req, res, next) =>{
+export const errorHandler = (error, req, res, next) => {
     // console.log("\x1b[31m%s\x1b[0m", `Error Stack -> ${err.stack}`);
 
     // console.log("headers: ", req.headers)
     // console.log("content-type : ", req.get('content-type'));
     // console.log("content-type : ", req.headers['content-type']);
     // console.log("accepts : ", req.get("Accept"));
-    // console.log("set header to json", req.accepts("application/json")); 
+    // console.log("set header to json", req.accepts("application/json"));
     // console.log("accepts : ", req.get("Accept"));
     // console.log(req.is("html"));
     // res.status(400);
@@ -20,6 +20,11 @@ export const errorHandler = (err, req, res, next) =>{
     //     res.type('txt').send('404 not found')
     // }
 
-    console.log("\x1b[33m%s\x1b[0m", `Error Message -> ${err.message}`);
-    res.status(err.status || 500).json({'error': err.message, status: err.status});
+    console.log("\x1b[36m%s\x1b[0m", `Error Message -> ${error.message}`);
+    console.log("\x1b[30m%s\x1b[0m", `Error Message -> ${error}`);
+    // return res.status(error.status || 500).json({
+    //     error: error.message,
+    //     status: error.status,
+    // });
+    return res.status(error.status).json({error: error})
 };

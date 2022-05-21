@@ -27,7 +27,8 @@
         "express-session": "^1.17.2",
         "jsonwebtoken": "^8.5.1",
         "mongoose": "^6.3.2",
-        "nodemon": "^2.0.16"
+        "nodemon": "^2.0.16",
+        "validator": "^13.7.0"
     },
     "devDependencies": {
         "@babel/cli": "^7.17.10",

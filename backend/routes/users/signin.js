@@ -1,42 +1,42 @@
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import { User } from '../../models/Users.js';
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { User } from "../../models/Users.js";
 import { JWT_SECRET } from "../../config/env.js";
 
 export const signin = async (req, res, next) => {
-    const error = new Error('Unauthorized user')
-    error.status = 401
     const { email, password } = req.body;
 
-    const session = req.session;
-    session.email = email;
-
-
     if (!email && !password) {
-        return next(error)
+        return res
+            .status(409)
+            .json({ error: { message: "Missing e-mail and password" } });
     }
 
     const user = await User.findOne({ email });
     if (!user) {
-        return res.status(409).json({ error: "Unauthorized User" });
-    };
+        return res
+            .status(409)
+            .json({ error: { message: "Unauthorized User - user not found" } });
+    }
 
     const validPassword = await bcrypt.compare(password, user.password);
 
-    if (!validPassword){
-        return res.status(500).json({ error: 'Unauthorized User' });
+    if (!validPassword) {
+        return res
+            .status(500)
+            .json({ error: { message: "Unauthorized User - wrong password" } });
     }
 
-    jwt.sign(
-        { id: user._id.toString(), email: user.email, active: user.active },
-        JWT_SECRET,
-        {expiresIn: "1d"},
-        (err, token) => {
-            if (err) {
-                return res.status(500).json(err)
-            }
-            res.status(200).json({token})
-        }
-    )
+    res.status(200).json(user._id)
+    // jwt.sign(
+    //     { id: user._id.toString(), email: user.email, active: user.active },
+    //     JWT_SECRET,
+    //     {expiresIn: "1d"},
+    //     (err, token) => {
+    //         if (err) {
+    //             return res.status(500).json(err)
+    //         }
+    //         res.status(200).json({token})
+    //     }
+    // )
 };
-
