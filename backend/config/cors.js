@@ -24,8 +24,7 @@ const corsOptions = {
     credentials: true,
 };
 
-const handleCors = () =>{
+export const handleCors = () =>{
     return cors(corsOptions);
 };
 
-export default handleCors;

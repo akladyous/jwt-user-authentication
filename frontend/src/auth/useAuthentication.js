@@ -15,6 +15,7 @@ export const userLogin = createAsyncThunk(
         };
         try {
             const response = await axios(config);
+            localStorage.setItem("token", response.data);
             return response.data;
         } catch (error) {
             console.log("error from axios : ", error);
@@ -26,7 +27,6 @@ export const userLogin = createAsyncThunk(
 export const userSignUp = createAsyncThunk(
     "user/userSignUp",
     async (userData, { rejectWithValue }) => {
-        // console.log("thunkAPI : ", thunkAPI);
         const { email, password } = userData;
         const config = {
             method: "post",
@@ -37,7 +37,7 @@ export const userSignUp = createAsyncThunk(
         };
         try {
             const response = await axios(config);
-            // console.log("response from axios : ", response);
+            localStorage.setItem("token", response.data);
             return response.data;
         } catch (error) {
             console.log("error from axios : ", error);
@@ -48,10 +48,47 @@ export const userSignUp = createAsyncThunk(
     }
 );
 
-export const userSignOut = createAsyncThunk("user/userSignOut", async () => {
-    try {
-        // await signOut('auth');
-    } catch (error) {
-        // throw new Error(handleErrors(error));
+export const userSignOut = createAsyncThunk(
+    "user/userSignOut",
+    async (_, { rejectWithValue }) => {
+        const config = {
+            method: "delete",
+            url: "http://localhost:4000/api/users/signout",
+            headers: { "Content-type": "application/json" },
+            withCredentials: true,
+        };
+        try {
+            const response = await axios(config);
+            localStorage.removeItem("token");
+            return response.data;
+        } catch (error) {
+            return rejectWithValue(error.response.data);
+        }
     }
-});
+);
+
+export const setToken = createAsyncThunk(
+    'user/setToken',
+    (_token, { rejectWithValue}) => {
+        try {
+            localStorage.setItem(_token);
+            return _token
+        } catch (err) {
+            // throw new Error('token error')
+            return rejectWithValue(err)
+        }
+    }
+);
+export const getToken = createAsyncThunk(
+    'user/getToken',
+    ( { rejectWithValue }) =>{
+        try {
+            const token = localStorage.getItem('token')
+            return token
+        } catch (err) {
+            return rejectWithValue(err);
+        }
+    }
+);
+
+

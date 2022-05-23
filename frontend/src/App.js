@@ -5,11 +5,13 @@ import UsersHome from "./users/UsersHome.js";
 import UsersLogin from "./users/UsersLogin.js";
 import UsersLogout from "./users/UsersLogout.js";
 import UsersSignup from "./users/UsersSignup.js";
+import UserState from "./auth/UserState.js";
 
 function App() {
     return (
         <>
             <Header />
+            <UserState />
             <Routes>
                 <Route path="/" element={<Home />} />
 

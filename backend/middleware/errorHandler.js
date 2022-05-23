@@ -20,11 +20,10 @@ export const errorHandler = (error, req, res, next) => {
     //     res.type('txt').send('404 not found')
     // }
 
-    console.log("\x1b[36m%s\x1b[0m", `Error Message -> ${error.message}`);
-    console.log("\x1b[30m%s\x1b[0m", `Error Message -> ${error}`);
+    console.log("\x1b[31m%s\x1b[0m", `Error Message -> ${error.message}`);
     // return res.status(error.status || 500).json({
     //     error: error.message,
     //     status: error.status,
     // });
-    return res.status(error.status).json({error: error})
+    return res.status(error.status).json({error: error.message})
 };

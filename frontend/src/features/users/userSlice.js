@@ -1,3 +1,4 @@
+import { loadTokenFromLocalStorage } from "../../hooks/localStorage.js";
 import {
     createSlice,
     isPending,
@@ -8,6 +9,8 @@ import {
     userLogin,
     userSignOut,
     userSignUp,
+    setToken,
+    loadToken,
 } from "../../auth/useAuthentication.js";
 
 const initialState = {
@@ -16,7 +19,7 @@ const initialState = {
     status: "idle", // idle | loading | succeeded | failed
     error: {},
     message: "",
-    token: localStorage.getItem('token') || null
+    token: loadTokenFromLocalStorage() || null,
 };
 
 const isPendingAction = isPending(userLogin, userSignOut, userSignUp);
@@ -27,62 +30,42 @@ export const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        getToken: (state, action) => {
-            state.token = localStorage.get('token')
-        },
-        setToken: (state, action) => {
-            state.token = localStorage.setItem("token", action.payload);
-        },
-        setUserStatus: (state, action) => {
+        setUserState: (state, action) => {
             state.isAuthenticated = action.payload;
         },
         setUser: (state, action) => {
-            state.user = {
-                id: action.payload.uid,
-                email: action.payload.email,
-                photoUrl: action.payload.photoURL,
-                phoneNumber: action.payload.phoneNumber,
-                lastLoginAt: action.payload.metadata.lastLoginAt,
-            };
+            state.user = action.payload;
         },
-        setMessage: (state, action) => {
-            state.message = action.payload;
-        },
-        resetMessage: (state) => {
-            state.message = "";
-        },
-        setError: (state, action) => {
-            state.error = action.payload;
-        },
-        resetError: (state) => {
-            state.error = "";
+        resetUser: (state) => {
+            state.user = null;
         },
         resetState: () => {
+            localStorage.removeItem("token");
             return { ...initialState };
         },
+        setToken: (state, action) => {
+            localStorage.setItem('token', action.payload)
+        }
     },
     extraReducers(builder) {
         builder
             .addCase(userLogin.fulfilled, (state, action) => {
                 state.isAuthenticated = true;
-                state.error = "";
+                state.error = {};
                 state.message = "Login successfullt completed";
-                state.user = { ...action.payload };
+                state.token = action.payload;
             })
             .addCase(userLogin.rejected, (state) => {
-                state.isAuthenticated = false;
+                localStorage.removeItem("token");
             })
             .addCase(userSignOut.fulfilled, (state) => {
-                state.user = null;
-                state.isAuthenticated = false;
+                return { ...initialState };
             })
             .addCase(userSignUp.fulfilled, (state, action) => {
                 state.isAuthenticated = true;
-                state.message = "Account successfully created";
-                state.user = action.payload;
                 state.error = {};
+                state.message = "Account successfully created";
                 state.token = action.payload;
-                localStorage.setItem("token", action.payload);
             })
             .addMatcher(isPendingAction, (state) => {
                 state.status = "loading";
@@ -93,12 +76,11 @@ export const userSlice = createSlice({
             .addMatcher(isRejectedAction, (state, action) => {
                 state.status = "failed";
                 // state.error = action.error.message;
-                state.error = {...action.payload};
-                console.log("action rejection: ", action)
+                state.error = { ...action.payload };
             });
     },
 });
 export const userState = (state) => state.user;
-export const { setUserStatus, setUser, resetState, setMessage, setError } =
+export const { setUserState, setUser, resetUser, resetState } =
     userSlice.actions;
 export default userSlice.reducer;

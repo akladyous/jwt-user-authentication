@@ -1,4 +1,4 @@
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { userSignOut } from "../auth/useAuthentication.js";
 import { userState } from "../features/users/userSlice.js";
 import { useSelector, useDispatch } from "react-redux";
@@ -6,12 +6,12 @@ import { useSelector, useDispatch } from "react-redux";
 export default function UsersLogout() {
     const dispatch = useDispatch();
     const state = useSelector(userState);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const handleSignOut = async (e) => {
         e.preventDefault();
         dispatch(userSignOut());
-        // navigate('/')
+        navigate('/')
     };
 
     return (

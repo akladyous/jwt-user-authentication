@@ -81,7 +81,7 @@ export default function UsersLogin() {
                                         {
                                             state.isAuthenticated
                                             ? "login successfully completed"
-                                            : ''
+                                            : state.error.message
                                             // : state.error
                                         }
                                     </p>

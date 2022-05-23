@@ -1,18 +1,20 @@
 import express from 'express';
-import { signup } from './users/signup.js';
-import { signin } from './users/signin.js';
+import { signup } from '../controller/users/signup.js';
+import { signin } from '../controller/users/signin.js';
+import { signout } from '../controller/users/signout.js';
 export const users = express.Router();
 
 users.get("/users", (req, res) => {
-    res.status(200).json({users: "users list"})
+    res.status(200).send('<h1>users page</h1>')
 });
 
 users.post("/users/signup", signup)
 users.post("/users/signin", signin)
+users.delete('/users/signout', signout)
 
 users.all("/users/*", (req, res, next) => {
-//     console.log("error..");
-//         res.status(500).json({message: "error"})
     const error = new Error('Path not found')
+    error.name = 'Route error'
+    error.status = 404
     next(error);
 })

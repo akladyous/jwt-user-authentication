@@ -112,7 +112,7 @@ export default function Header() {
                         </li>
                     </ul>
                 </div>
-                <span>{state.isAuthenticated ? state.user.email : ""}</span>
+                {/* <span>{state.isAuthenticated ? state.user.email : ""}</span> */}
             </div>
         </nav>
     );
