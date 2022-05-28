@@ -1,10 +1,7 @@
 import jwt from "jsonwebtoken";
-import bcrypt, { hash } from "bcrypt";
-import { JWT_SECRET } from '../config/env.js';
+import bcrypt from "bcrypt";
 
 export default class Auth {
-    static jwt_secret = JWT_SECRET || 'secret key';
-    static expiration = "1d";
 
     static createSession(token) {
         req.session.token = token;
@@ -18,12 +15,12 @@ export default class Auth {
         req.session.destroy();
     }
 
-    static jwtSign(payload) {
+    static jwtSign(payload, secret, timeout) {
         return new Promise((resolve, reject) => {
             jwt.sign(
-                { payload },
-                this.jwt_secret,
-                { expiresIn: this.expiration },
+                payload,
+                secret,
+                { expiresIn: timeout },
                 (jwtError, token) => {
                     if (jwtError) {
                         jwtError.status = 500;
@@ -36,15 +33,15 @@ export default class Auth {
         });
     }
     
-    static jwtVerify(token) {
+    static jwtVerify(token, secret) {
         return new Promise( (resolve, reject) => {
-            jwt.verify(token, this.jwt_secret, (verficationError, decodedToen) => {
-                if (verficationError){
-                    verficationError.status = 500
-                    reject(verficationError)
+            jwt.verify(token, secret, (error, decoded) => {
+                if (error) {
+                    error.status = 500;
+                    reject(error);
                 }
-                resolve(decodedToen);
-            })
+                resolve(decoded);
+            });
         } )
     }
 

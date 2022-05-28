@@ -12,29 +12,37 @@ export default function UserState () {
     const dispatch = useDispatch();
 
     const getPayload = useCallback( (token) => {
-        const encodedPayload = token.split(".")[1];
         try {
-            const decodedToken = JSON.parse(window.atob(encodedPayload))
-            if (decodedToken.hasOwnProperty('exp')){
-                if(Date.now() <= decodedToken.exp * 1000)
-                return decodedToken.payload
+            const encodedPayload = token.split(".")[1];
+            const decoded = JSON.parse(window.atob(encodedPayload))
+            if (decoded.hasOwnProperty('exp')){
+                if(Date.now() <= decoded.exp * 1000){
+                    return decoded;
+                } else {
+                    throw new Error('token expired')
+                }
+
             }
         } catch (err){
-            console.log(err)
-            return false
+            // console.error(err.message)
+            return null
         }
     },[])
 
     useEffect(()=>{
-        console.log('component did mount')
-        if (!token){
-            dispatch(resetUser())
-        } else {
+        let isMounted = true;
+        if (isMounted) {
             const decodedToken = getPayload(token)
-            dispatch(setUser(decodedToken));
-            dispatch(setUserState(true));
-        }
+            if (!token || decodedToken === null){
+                dispatch(resetUser())
+            } else {
+                dispatch(setUser(decodedToken));
+                dispatch(setUserState(true));
+            }
+        };
 
-        return ()=> {console.log('component will unmount')}
+        return () => {
+            isMounted = false;
+        }
     },[token])
 };

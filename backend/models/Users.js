@@ -1,7 +1,7 @@
 import {isEmail} from "validator";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
-import bcrypt from "bcrypt";
+// import bcrypt from "bcrypt";
 
 
 const userSchema = new Schema(
@@ -31,6 +31,10 @@ const userSchema = new Schema(
         lastLoginAt: {
             type: Date,
             default: null
+        },
+        refreshToken: {
+            type: String,
+            default: null
         }
     },
     { timestamps: true }
@@ -48,12 +52,12 @@ userSchema.statics.login = async function (email, password) {
     throw Error('Incorrect email')
 }
 
-userSchema.pre('save', async function (next){
-    // console.log('before save: ', this)
-    const salt = await bcrypt.genSalt(10)
-    this.password = await bcrypt.hash(this.password, salt)
-    next();
-});
+// userSchema.pre('save', async function (next){
+//     // console.log('before save: ', this)
+//     const salt = await bcrypt.genSalt(10)
+//     this.password = await bcrypt.hash(this.password, salt)
+//     next();
+// });
 
 userSchema.post('save', (doc, next) => {
     // console.log('after save : ', doc)

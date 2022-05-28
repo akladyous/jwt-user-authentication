@@ -2,24 +2,25 @@ import express from "express";
 import session from "express-session";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
+
 import path from "path";
 import { dbConnect } from "./config/dbConnect.js";
 import { root, delay, users } from "./routes/routes.js";
 import { sessionOptions } from "./config/sessionOptions.js";
 import {
     errorHandler,
-    sessionConfig,
+    credentials,
     logger,
-    handleCors,
     missingRoutes,
+    handleCors
 } from "./middleware/middleware.js";
-import { PORT, JWT_SECRET } from './config/env.js'
+import { PORT, COOKIE_SECRET } from './config/env.js'
 
 dbConnect();
 const app = express();
 app.use(logger);
-app.use(sessionConfig);
-app.use(cookieParser(JWT_SECRET));
+app.use(credentials);
+app.use(cookieParser(COOKIE_SECRET));
 app.use(session(sessionOptions));
 app.use(handleCors());
 app.use(express.json());
@@ -31,6 +32,12 @@ app.use("/api", users);
 
 import { home } from "./routes/home.js"
 app.post("/home", home);
+
+import {test} from './routes/test.js'
+import { verifyAuth } from './middleware/verifyAuth.js'
+import { handleRefreshToken } from './middleware/handleRefreshToken.js'
+app.get("/refresh", handleRefreshToken);
+app.get("/test", verifyAuth, test);
 
 app.use(missingRoutes);
 app.use(errorHandler);

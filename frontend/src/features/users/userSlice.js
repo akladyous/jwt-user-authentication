@@ -1,25 +1,24 @@
-import { loadTokenFromLocalStorage } from "../../hooks/localStorage.js";
 import {
     createSlice,
     isPending,
     isRejected,
     isFulfilled,
 } from "@reduxjs/toolkit";
+
 import {
     userLogin,
     userSignOut,
     userSignUp,
-    setToken,
-    loadToken,
+    refreshToken,
 } from "../../auth/useAuthentication.js";
 
-const initialState = {
+export const initialState = {
     isAuthenticated: false,
     user: null,
     status: "idle", // idle | loading | succeeded | failed
     error: {},
     message: "",
-    token: loadTokenFromLocalStorage() || null,
+    token: null,
 };
 
 const isPendingAction = isPending(userLogin, userSignOut, userSignUp);
@@ -44,16 +43,28 @@ export const userSlice = createSlice({
             return { ...initialState };
         },
         setToken: (state, action) => {
-            localStorage.setItem('token', action.payload)
-        }
+            state.token = action.payload;
+        },
+        Protectedtest: (state, action) => {
+            // console.log('test action')
+        },
     },
     extraReducers(builder) {
         builder
+            .addCase(refreshToken.fulfilled, (state, action) => {
+                state.token = action.payload;
+                state.status = "succeeded";
+            })
+            .addCase(refreshToken.rejected, (state, action) => {
+                return { ...initialState, error: { message: action.payload } };
+            })
             .addCase(userLogin.fulfilled, (state, action) => {
                 state.isAuthenticated = true;
                 state.error = {};
                 state.message = "Login successfullt completed";
                 state.token = action.payload;
+                state.status = "succeeded";
+                // console.log('userlogin action payload : ', action.payload)
             })
             .addCase(userLogin.rejected, (state) => {
                 localStorage.removeItem("token");
@@ -71,7 +82,7 @@ export const userSlice = createSlice({
                 state.status = "loading";
             })
             .addMatcher(isFulfilledAction, (state) => {
-                state.status = "succeeded";
+                state.status = "idle";
             })
             .addMatcher(isRejectedAction, (state, action) => {
                 state.status = "failed";
@@ -81,6 +92,6 @@ export const userSlice = createSlice({
     },
 });
 export const userState = (state) => state.user;
-export const { setUserState, setUser, resetUser, resetState } =
+export const { setUserState, setUser, resetUser, resetState, Protectedtest } =
     userSlice.actions;
 export default userSlice.reducer;

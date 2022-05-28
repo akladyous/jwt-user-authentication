@@ -1,17 +1,17 @@
 import { errorHandler } from "./errorHandler.js";
-import { sessionConfig } from './sessionConfig.js'
+import { credentials } from "./sessionConfig.js";
 import { logger } from "./logger.js";
 import { requireAuth } from './requireAuth.js'
-import { handleCors } from "../config/cors.js";
 import { missingRoutes } from "./missingRoutes.js";
+import { handleCors } from "./handleCors.js";
 // import { currentUser } from './currentUser.js'
 
 export {
     errorHandler,
-    sessionConfig,
+    credentials,
     logger,
     requireAuth,
-    handleCors,
     missingRoutes,
+    handleCors
     // currentUser
 };

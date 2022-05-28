@@ -37,7 +37,7 @@ export default function UsersLogout() {
                                     className="text-center border-0 form-control"
                                     aria-describedby="response"
                                 >
-                                    {state.isAuthenticated
+                                    {state.isAuthenticated && state.user?.lastLoginAt
                                         ? `Last login at ${new Date(parseInt(state.user.lastLoginAt)).toLocaleString()}`
                                         : "user not logged in"}
                                 </p>

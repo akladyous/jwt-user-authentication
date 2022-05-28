@@ -1,4 +1,4 @@
-import { SESSION_NAME, SESSION_SECRET, SESSION_TIMEOUT } from "./env.js";
+import { SESSION_NAME, SESSION_SECRET, COOKIE_TIMEOUT } from "./env.js";
 
 export const sessionOptions = {
     name: SESSION_NAME,
@@ -7,7 +7,7 @@ export const sessionOptions = {
     saveUninitialized: false,
     rolling: false,
     cookie: {
-        maxAge: SESSION_TIMEOUT,
+        maxAge: COOKIE_TIMEOUT,
         httpOnly: true,
         secure: false,
         sameSite: true,

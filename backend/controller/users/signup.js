@@ -1,5 +1,13 @@
+import bcrypt from "bcrypt";
 import Auth from "../../util/auth.js";
 import { User } from "../../models/Users.js";
+import {
+    REFRESH_TOKEN_SECRET,
+    REFRESH_TIMEOUT,
+    ACCESS_TOKEN_SECRET,
+    ACCESS_TIMEOUT,
+    COOKIE_TIMEOUT,
+} from "../../config/env.js";
 
 const handleErrors = (err) => {
     if (err.code === 11000) {
@@ -14,27 +22,49 @@ const handleErrors = (err) => {
     return { ...errors, message: err.message };
 };
 
-export const signup = async (req, res, next) => {
-    const { email, password } = req.body;
-
-    if (!email && !password) {
-        return res.status(409).json({error: 'Missing email or password'})
-    }
-
-    const userExists = await User.findOne({ email }).exec();
-
-    if (userExists) {
+export const signup = async (req, res) => {
+    if (!req.body?.email || !req.body?.password) {
         return res
-            .status(409)
-            .json({ error: { message: "User already Exists" } });
+        .status(409)
+        .json({ error: { message: "Missing e-mail or password" } });
     }
-
+    const { email, password } = req.body;
+    
     try {
-        const user = await User.create({ email, password });
-        const token = await Auth.jwtSign({ id: user._id, email: user.email });
-        req.session.token = token
-        // res.cookie('jwt', token, {httpOnly: true, maxAge: 1000 * 1 * 24 * 60 * 60})
-        res.status(201).json(token);
+        const userExists = await User.findOne({ email }).exec();
+        if (userExists) {
+            return res
+                .status(409)
+                .json({ error: { message: "User already Exists" } });
+        }
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const user = await User.create({
+            email: email,
+            password: hashedPassword,
+            lastLoginAt: new Date(),
+        });
+        const accessToken = await Auth.jwtSign(
+            { id: user._id, email: user.email, lastLoginAt: user.lastLoginAt },
+            ACCESS_TOKEN_SECRET,
+            ACCESS_TIMEOUT
+        );
+
+        const refreshToken = await Auth.jwtSign(
+            { id: user._id, email: user.email, lastLoginAt: user.lastLoginAt },
+            REFRESH_TOKEN_SECRET,
+            REFRESH_TIMEOUT
+        );
+
+        // req.session.token = refreshToken;
+        res.cookie("token", refreshToken, {
+            maxAge: COOKIE_TIMEOUT,
+            httpOnly: true,
+            sameSite: "None",
+            // secure: true,
+        });
+        res.status(200).json(accessToken);
+
     } catch (error) {
         let customError = handleErrors(error);
         customError.status = 409

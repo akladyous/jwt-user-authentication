@@ -56,6 +56,7 @@ export default function UsersSignup() {
     };
 
     const isValidPasswordConfirmation = () => {
+        if(formData.email.length === 0 && formData.password.length === 0 && formData.passwordConfirmation.length === 0) return 'form-control';
         if (formData.passwordConfirmation.length === 0) return "form-control";
         if (
             formData.passwordConfirmation.length >= 1 &&

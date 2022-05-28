@@ -1,28 +1,52 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { userLogin } from "../auth/useAuthentication.js";
 import { userState } from "../features/users/userSlice.js";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+// import useIsMounted from "../hooks/useIsMounted.js";
 
 export default function UsersLogin() {
     const dispatch = useDispatch();
     const state = useSelector(userState);
 
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || '/';
+    // console.log("location.state : ", location.state);
+
+    // const isMounted = useIsMounted();
+
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
 
     const handleForm = async (e) => {
         e.preventDefault();
-        dispatch(userLogin({ email, password }));
-        // if (state.isAuthenticated) {
-        //     setTimeout(() => {
-        //         navigate('/')
-        //     }, 3000);
-        // }
+        dispatch(userLogin({ email, password }))
+        .unwrap()
+        .then(result => {console.log(result)})
+        .catch(error => {console.log(error)})
+        
+        if (state.isAuthenticated) {
+            console.log("ok authenticated ..");
+            navigate(from, { replace: true });
+            // setTimeout(() => {
+            //     navigate(from, { replace: true} )
+            // }, 1000);
+        }
     };
     
+    useEffect(()=>{
+        let isMounted = true
+        if ( state.isAuthenticated && isMounted === true ){
+            navigate(from, { replace: true });
+        }
+
+        return () => {
+            isMounted = false;
+        }
+    }, [state.isAuthenticated])
+
     return (
         <div className="container my-3">
             <div className="row justify-content-md-center">
