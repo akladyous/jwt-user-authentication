@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { axiosPrivate } from '../api/axios.js'
 import { Protectedtest } from "../features/users/userSlice.js";
 // import { refreshToken } from '../auth/useAuthentication.js'
-import { refreshToken } from "../features/token/thunks/token.js";
+// import { refreshToken } from "../features/token/thunks/token.js";
 
 export default function Test() {
     const {token} = useSelector(userState);
@@ -12,30 +12,30 @@ export default function Test() {
     
 
     const handleTest = async () =>{
-        dispatch(Protectedtest());
+        // dispatch(Protectedtest());
         try {
             const response = await axiosPrivate.get("/test", {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             });
-            // console.log('test endpoint response : ', response)
+            console.log('test endpoint response : ', response.data)
         } catch (error) {
             console.log("test endpoint error : ", error);
         }
     }
     
 
-    const accessToken = async () =>{
-            dispatch(refreshToken())
-            .unwrap()
-            .then( result => {
-                console.log("result from dispatch fulfilled : ", result)
-            })
-            .catch(error => {
-                console.log("result from dispatch rejected : ", error)
-            })
-    }
+    // const accessToken = async () =>{
+    //         dispatch(refreshToken())
+    //         .unwrap()
+    //         .then( result => {
+    //             console.log("result from dispatch fulfilled : ", result)
+    //         })
+    //         .catch(error => {
+    //             console.log("result from dispatch rejected : ", error)
+    //         })
+    // }
 
     // useEffect(() => {
     //     let isMounted = true;
@@ -56,7 +56,7 @@ export default function Test() {
             </div>
             <br />
             <div className="container">
-                <button onClick={accessToken}>accessToken</button>
+                {/* <button onClick={accessToken}>accessToken</button> */}
                 <p className="text-break">{token}</p>
             </div>
         </div>

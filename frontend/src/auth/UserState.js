@@ -44,5 +44,5 @@ export default function UserState () {
         return () => {
             isMounted = false;
         }
-    },[token])
+    },[dispatch, getPayload, token])
 };

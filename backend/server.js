@@ -34,10 +34,10 @@ import { home } from "./routes/home.js"
 app.post("/home", home);
 
 import {test} from './routes/test.js'
-import { verifyAuth } from './middleware/verifyAuth.js'
 import { handleRefreshToken } from './middleware/handleRefreshToken.js'
+import { verifyAuth } from './middleware/verifyAuth.js'
 app.get("/refresh", handleRefreshToken);
-app.get("/test", verifyAuth, test);
+app.get("/test", handleRefreshToken, verifyAuth ,test);
 
 app.use(missingRoutes);
 app.use(errorHandler);

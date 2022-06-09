@@ -46,7 +46,7 @@ export const userSlice = createSlice({
             state.token = action.payload;
         },
         Protectedtest: (state, action) => {
-            // console.log('test action')
+            console.log('Protectedtest');
         },
     },
     extraReducers(builder) {

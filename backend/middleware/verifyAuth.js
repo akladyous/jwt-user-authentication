@@ -18,7 +18,7 @@ export const verifyAuth = (req, res, next) => {
             .catch((error) => {
                 error.status = 401;
                 error.message = "Authentication Error - invalid token";
-                next(error);
+                return res.status(401).json({ error: "Authentication Error - invalid token" });
             });
     } else {
         res.status(403).json({ error: "Authentication Error - token not found" });
