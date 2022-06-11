@@ -3,7 +3,7 @@ import { axiosPrivate } from "../../../api/axios.js";
 
 export const refreshToken = createAsyncThunk(
     "refreshToken",
-    async (_, { rejectWithValue }) => {
+    async (args, thunkAPI) => {
         try {
             const response = await axiosPrivate.get("/refresh");
             return await response.data;
@@ -11,7 +11,9 @@ export const refreshToken = createAsyncThunk(
             if (!error.response) {
                 throw error;
             }
-            return rejectWithValue(error.response.data.error);
+            return thunkAPI.rejectWithValue(error.response.data.error);
         }
+    }, {
+        type: 'api'
     }
 );

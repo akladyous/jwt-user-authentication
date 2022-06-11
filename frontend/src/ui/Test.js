@@ -1,10 +1,9 @@
 import { userState } from "../features/users/userSlice.js";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { axiosPrivate } from '../api/axios.js'
-import { Protectedtest } from "../features/users/userSlice.js";
-// import { refreshToken } from '../auth/useAuthentication.js'
+// import { axiosPrivate } from '../api/axios.js'
 // import { refreshToken } from "../features/token/thunks/token.js";
+import { testAction } from "../features/token/thunks/testAction.js";
 
 export default function Test() {
     const {token} = useSelector(userState);
@@ -12,18 +11,8 @@ export default function Test() {
     
 
     const handleTest = async () =>{
-        // dispatch(Protectedtest());
-        try {
-            const response = await axiosPrivate.get("/test", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            console.log('test endpoint response : ', response.data)
-        } catch (error) {
-            console.log("test endpoint error : ", error);
-        }
-    }
+        dispatch(testAction());
+    };
     
 
     // const accessToken = async () =>{

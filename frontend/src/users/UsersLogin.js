@@ -23,9 +23,9 @@ export default function UsersLogin() {
     const handleForm = async (e) => {
         e.preventDefault();
         dispatch(userLogin({ email, password }))
-        .unwrap()
-        .then(result => {console.log(result)})
-        .catch(error => {console.log(error)})
+        // .unwrap()
+        // .then(result => {console.log(result)})
+        // .catch(error => {console.log(error)})
         
         if (state.isAuthenticated) {
             console.log("ok authenticated ..");

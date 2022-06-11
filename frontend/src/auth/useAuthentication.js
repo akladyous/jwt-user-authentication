@@ -1,37 +1,15 @@
-import axios from "axios";
-import { axiosPrivate } from "../api/axios.js";
+import { axiosPrivate} from "../api/axios.js";
 import { createAsyncThunk } from "@reduxjs/toolkit";
-
-export const refreshToken = createAsyncThunk(
-    "refreshToken",
-    async (_, { rejectWithValue }) => {
-        try {
-            const response = await axiosPrivate.get("/refresh");
-            return await response.data;
-        } catch (error) {
-            if (!error.response) {
-                throw error;
-            }
-            return rejectWithValue(error.response.data.error);
-        }
-    }
-);
+import { setToken, resetState } from "../features/token/tokenSlice.js";
 
 export const userLogin = createAsyncThunk(
     "user/userLogin",
-    async (userData, { rejectWithValue }) => {
+    async (userData, thunkAPI) => {
         const { email, password } = userData;
-        const config = {
-            method: "post",
-            url: "http://localhost:4000/api/users/signin",
-            headers: { "Content-type": "application/json" },
-            data: JSON.stringify({ email, password }),
-            withCredentials: true,
-        };
+        const data = JSON.stringify({ email, password })
         try {
-            const response = await axios(config);
-            // localStorage.setItem("token", response.data);
-            // console.log('login thunk response : ', response)
+            const response = await axiosPrivate.post("users/signin", data);
+            thunkAPI.dispatch(setToken(response.data));
             return response.data;
         } catch (error) {
             // localStorage.removeItem('state')
@@ -39,8 +17,11 @@ export const userLogin = createAsyncThunk(
                 throw error;
             }
 
-            return rejectWithValue(error.response.data.error);
+            return thunkAPI.rejectWithValue(error.response.data.error);
         }
+    }, {
+        type: "api",
+        test: "test"
     }
 );
 
@@ -48,15 +29,9 @@ export const userSignUp = createAsyncThunk(
     "user/userSignUp",
     async (userData, { rejectWithValue }) => {
         const { email, password } = userData;
-        const config = {
-            method: "post",
-            url: "http://localhost:4000/api/users/signup",
-            headers: { "Content-type": "application/json" },
-            data: JSON.stringify({ email, password }),
-            withCredentials: true,
-        };
+        const data = JSON.stringify({ email, password });
         try {
-            const response = await axios(config);
+            const response = await axiosPrivate.post("users/signup", data);
             // localStorage.setItem("token", response.data);
             return response.data;
         } catch (error) {
@@ -73,22 +48,17 @@ export const userSignUp = createAsyncThunk(
 
 export const userSignOut = createAsyncThunk(
     "user/userSignOut",
-    async (_, { rejectWithValue }) => {
-        const config = {
-            method: "delete",
-            url: "http://localhost:4000/api/users/signout",
-            headers: { "Content-type": "application/json" },
-            withCredentials: true,
-        };
+    async (args, thunkAPI) => {
         try {
-            const response = await axios(config);
-            localStorage.removeItem("state");
+            const response = await axiosPrivate.delete("users/signout");
+            // localStorage.removeItem("state");
+            thunkAPI.dispatch(resetState());
             return response.data;
         } catch (error) {
             if (!error.response) {
                 throw error;
             }
-            return rejectWithValue(error.response.data);
+            return thunkAPI.rejectWithValue(error.response.data);
         }
     }
 );

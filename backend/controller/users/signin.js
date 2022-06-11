@@ -52,7 +52,7 @@ export const signin = async (req, res, next) => {
             maxAge: COOKIE_TIMEOUT,
             httpOnly: true,
             // sameSite: "None",
-            // secure: true,
+            secure: true,
         });
         res.status(200).json(accessToken);
 

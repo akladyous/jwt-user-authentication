@@ -10,7 +10,7 @@ export const handleRefreshToken = async (req, res) => {
     const cookies = req.cookies;
     if (!cookies?.token)
         return res
-            .status(403)
+            .status(401)
             .json({ error: "User Authorization Error: Missing Token" });
     const refreshToken = cookies.token;
 
@@ -24,7 +24,7 @@ export const handleRefreshToken = async (req, res) => {
         .then((decoded) => {
             if (user.email !== decoded.email) {
                 return Promise.reject(
-                    "Authentication Error - email doesn't match"
+                    "User Authorization Error: Forbidden"
                 );
             }
             Auth.jwtSign(
@@ -46,6 +46,6 @@ export const handleRefreshToken = async (req, res) => {
                 });
         })
         .catch((error) => {
-            return res.status(403).json({ error: error });
+            return res.status(403).json({ error: "User Authorization Error: Unverified Token" });
         });
 };

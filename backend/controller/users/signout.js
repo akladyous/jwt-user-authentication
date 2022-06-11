@@ -12,7 +12,7 @@ export const signout = async (req, res) => {
     if (!userExists) {
         res.clearCookie('token', { httpOnly: true, sameSite: 'None', secure: true});
         return res
-            .status(403)
+            .status(204)
             .json({ error: "User Authorization Error: User not found" });
     }
 

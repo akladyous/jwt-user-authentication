@@ -9,7 +9,6 @@ import {
     userLogin,
     userSignOut,
     userSignUp,
-    refreshToken,
 } from "../../auth/useAuthentication.js";
 
 export const initialState = {
@@ -51,13 +50,13 @@ export const userSlice = createSlice({
     },
     extraReducers(builder) {
         builder
-            .addCase(refreshToken.fulfilled, (state, action) => {
-                state.token = action.payload;
-                state.status = "succeeded";
-            })
-            .addCase(refreshToken.rejected, (state, action) => {
-                return { ...initialState, error: { message: action.payload } };
-            })
+            // .addCase(refreshToken.fulfilled, (state, action) => {
+            //     state.token = action.payload;
+            //     state.status = "succeeded";
+            // })
+            // .addCase(refreshToken.rejected, (state, action) => {
+            //     return { ...initialState, error: { message: action.payload } };
+            // })
             .addCase(userLogin.fulfilled, (state, action) => {
                 state.isAuthenticated = true;
                 state.error = {};

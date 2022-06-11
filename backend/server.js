@@ -32,12 +32,16 @@ app.use("/api", users);
 
 import { home } from "./routes/home.js"
 app.post("/home", home);
-
+// -------------------------------------------------
 import {test} from './routes/test.js'
 import { handleRefreshToken } from './middleware/handleRefreshToken.js'
-import { verifyAuth } from './middleware/verifyAuth.js'
-app.get("/refresh", handleRefreshToken);
-app.get("/test", handleRefreshToken, verifyAuth ,test);
+import { verifyJWT } from './middleware/verifyJWT.js'
+
+app.get("/api/refresh", handleRefreshToken);
+app.use(verifyJWT);
+app.get("/api/test", test);
+// app.get("/test", test);
+// -------------------------------------------------
 
 app.use(missingRoutes);
 app.use(errorHandler);

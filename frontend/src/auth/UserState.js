@@ -31,15 +31,15 @@ export default function UserState () {
 
     useEffect(()=>{
         let isMounted = true;
-        if (isMounted) {
-            const decodedToken = getPayload(token)
-            if (!token || decodedToken === null){
-                dispatch(resetUser())
-            } else {
-                dispatch(setUser(decodedToken));
-                dispatch(setUserState(true));
-            }
-        };
+        // if (isMounted) {
+        //     const decodedToken = getPayload(token)
+        //     if (!token || decodedToken === null){
+        //         dispatch(resetUser())
+        //     } else {
+        //         dispatch(setUser(decodedToken));
+        //         dispatch(setUserState(true));
+        //     }
+        // };
 
         return () => {
             isMounted = false;
