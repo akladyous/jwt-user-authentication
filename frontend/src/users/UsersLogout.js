@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { userSignOut } from "../auth/useAuthentication.js";
-import { userState } from "../features/users/userSlice.js";
 import { useSelector, useDispatch } from "react-redux";
+import { userState } from "../features/users/userSlice.js";
+import { userSignOut } from "../app/thunkAPI/usersThunkAPI";
 
 export default function UsersLogout() {
     const dispatch = useDispatch();

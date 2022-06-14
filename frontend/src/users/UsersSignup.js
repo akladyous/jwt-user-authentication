@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 // import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userState } from "../features/users/userSlice.js";
-import { userSignUp } from "../auth/useAuthentication.js";
+import { userSignUp } from "../app/thunkAPI/usersThunkAPI";
 
 export default function UsersSignup() {
     const state = useSelector(userState);

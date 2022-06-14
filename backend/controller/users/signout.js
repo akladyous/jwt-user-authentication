@@ -17,7 +17,7 @@ export const signout = async (req, res) => {
     }
 
     userExists.refreshToken = null;
-    const result = await userExists.save();
+    await userExists.save();
     // console.log('signout controller - after: logout-> ', result)
 
     res.clearCookie("token", {

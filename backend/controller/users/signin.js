@@ -12,7 +12,7 @@ export const signin = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res
-            .status(409)
+            .status(400)
             .json({ error: { message: "Missing e-mail or password" } });
     }
 
@@ -28,8 +28,8 @@ export const signin = async (req, res, next) => {
             user.password
             );
         if (!validPassword) {
-            return res.status(500).json({
-                error: { message: "Unauthorized User - wrong password" },
+            return res.status(400).json({
+                error: { message: "Unauthorized User - missing email or password" },
             });
         }
         const accessToken = await Auth.jwtSign(

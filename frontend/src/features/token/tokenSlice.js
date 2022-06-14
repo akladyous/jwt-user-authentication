@@ -1,10 +1,11 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { refreshToken } from './thunks/refreshToken.js'
-import { testAction } from "./thunks/testAction.js";
+import { refreshToken } from "../../app/thunkAPI/tokenThunkAPI.jsx";
+import { testAction } from '../../app/thunkAPI/test/testAction.js'
+
 
 export const initialState = {
     token: null,
-    status: false,
+    status: "idle", // idle | loading | succeeded | failed
 }
 
 export const tokenSlice = createSlice({
@@ -12,10 +13,12 @@ export const tokenSlice = createSlice({
     initialState,
     reducers: {
         setToken: (state, action) => {
-            state.status = true;
+            state.status = "fulfilled";
             state.token = action.payload;
+            console.log("setToken payload : ", action.payload)
         },
-        resetState: () => {
+        resetState: (state) => {
+            state.status = "idle"
             return { ...initialState };
         },
         testAction: (state, action) => {
@@ -24,24 +27,32 @@ export const tokenSlice = createSlice({
     },
     extraReducers(builder) {
         builder
+        .addCase(refreshToken.pending, (state, action) =>{
+            state.status = "pending";
+            state.token = action.payload;
+        })
         .addCase(refreshToken.fulfilled, (state, action) => {
             state.token = action.payload;
-            state.status = "succeeded";
+            state.status = "fulfilled";
         })
         .addCase(refreshToken.rejected, (state, action) => {
-            // return { ...initialState, error:  { message: action.payload} };
-            state.status = false;
+            state.status = "rejected";
             state.token = null;
         })
-            .addCase(testAction.fulfilled, (state, action) => {
-            console.log('accessToken.fulfilled : ', action.payload);
+        .addCase(testAction.pending, (state, action) =>{
+            state.status = "pending";
+        })
+        .addCase(testAction.fulfilled, (state, action) => {
+            state.status = "fulfilled";
+            // console.log('accessToken.fulfilled : ', action.payload);
         })
         .addCase(testAction.rejected, (state, action) => {
+            state.status = "rejected";
             // console.log('tokenSlice -> accessToken.rejected : ', action.payload);
         })
     }
 });
 
 export default tokenSlice.reducer;
-export const tokenState = (state) => state;
+export const tokenState = (state) => state.token;
 export const { setToken, resetState } =tokenSlice.actions;

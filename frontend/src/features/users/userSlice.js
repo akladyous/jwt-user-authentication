@@ -9,7 +9,7 @@ import {
     userLogin,
     userSignOut,
     userSignUp,
-} from "../../auth/useAuthentication.js";
+} from '../../app/thunkAPI/usersThunkAPI'
 
 export const initialState = {
     isAuthenticated: false,
@@ -44,26 +44,15 @@ export const userSlice = createSlice({
         setToken: (state, action) => {
             state.token = action.payload;
         },
-        Protectedtest: (state, action) => {
-            console.log('Protectedtest');
-        },
     },
     extraReducers(builder) {
         builder
-            // .addCase(refreshToken.fulfilled, (state, action) => {
-            //     state.token = action.payload;
-            //     state.status = "succeeded";
-            // })
-            // .addCase(refreshToken.rejected, (state, action) => {
-            //     return { ...initialState, error: { message: action.payload } };
-            // })
             .addCase(userLogin.fulfilled, (state, action) => {
                 state.isAuthenticated = true;
                 state.error = {};
                 state.message = "Login successfullt completed";
                 state.token = action.payload;
                 state.status = "succeeded";
-                // console.log('userlogin action payload : ', action.payload)
             })
             .addCase(userLogin.rejected, (state) => {
                 localStorage.removeItem("token");

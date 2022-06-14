@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { userLogin } from "../auth/useAuthentication.js";
-import { userState } from "../features/users/userSlice.js";
 import { useNavigate, useLocation } from "react-router-dom";
-// import useIsMounted from "../hooks/useIsMounted.js";
+import { useSelector, useDispatch } from "react-redux";
+import { userState } from "../features/users/userSlice.js";
+import { useLoginMutation } from "../app/api/authApiSlice.js";
+import { verifyJWT } from "../util/verifyJWT.js";
+import { setUser, setUserState } from "../features/users/userSlice.js";
+import { _objectWithoutPropertiesLoose } from '../util/babel'
 
 export default function UsersLogin() {
     const dispatch = useDispatch();
@@ -11,41 +13,46 @@ export default function UsersLogin() {
 
     const navigate = useNavigate();
     const location = useLocation();
-    const from = location.state?.from?.pathname || '/';
-    // console.log("location.state : ", location.state);
+    const from = location.state?.from?.pathname || "/";
 
-    // const isMounted = useIsMounted();
-
+    
+    let [ login,{ isLoading, isFetching, isError, } ] = useLoginMutation();
+    
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-
+    const [errorMsg, setErrorMsg] = useState('')
 
     const handleForm = async (e) => {
         e.preventDefault();
-        dispatch(userLogin({ email, password }))
-        // .unwrap()
-        // .then(result => {console.log(result)})
-        // .catch(error => {console.log(error)})
-        
-        if (state.isAuthenticated) {
-            console.log("ok authenticated ..");
-            navigate(from, { replace: true });
-            // setTimeout(() => {
-            //     navigate(from, { replace: true} )
-            // }, 1000);
+
+        try {
+            const accessToken = await login({ email, password }).unwrap();
+            const userData = verifyJWT(accessToken);
+            dispatch(setUser(_objectWithoutPropertiesLoose(userData, ['iat', 'exp'])));
+            dispatch(setUserState(true));
+            setEmail('')
+            setPassword('')
+
+        } catch (err) {
+            dispatch(setUserState(false));
+            if (err?.status === "FETCH_ERROR") {
+                setErrorMsg("internal server error")
+            } else {
+                setErrorMsg(err.data.error.message)
+            }
         }
     };
-    
-    useEffect(()=>{
-        let isMounted = true
-        if ( state.isAuthenticated && isMounted === true ){
+
+    useEffect(() => {
+        let isMounted = true;
+        if (state.isAuthenticated && isMounted === true) {
             navigate(from, { replace: true });
         }
 
         return () => {
             isMounted = false;
-        }
-    }, [state.isAuthenticated])
+        };
+    }, [state.isAuthenticated]);
 
     return (
         <div className="container my-3">
@@ -102,12 +109,7 @@ export default function UsersLogin() {
                                         className="text-center border-0 form-control"
                                         aria-describedby="response"
                                     >
-                                        {
-                                            state.isAuthenticated
-                                            ? "login successfully completed"
-                                            : state.error.message
-                                            // : state.error
-                                        }
+                                        { isError && errorMsg }
                                     </p>
                                 </div>
                                 <div className="row justify-content-center">
@@ -119,6 +121,7 @@ export default function UsersLogin() {
                                         >
                                             Submit
                                         </button>
+                                        <p>{isLoading || isFetching ? "loading..." : ""}</p>
                                     </div>
                                 </div>
                             </form>

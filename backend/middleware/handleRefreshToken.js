@@ -17,7 +17,7 @@ export const handleRefreshToken = async (req, res) => {
     const user = await User.findOne({ refreshToken }).exec();
     if (!user)
         return res
-            .status(403)
+            .status(401)
             .json({ error: "User Authorization Error: Forbidden" });
 
     Auth.jwtVerify(refreshToken, REFRESH_TOKEN_SECRET)
@@ -40,12 +40,12 @@ export const handleRefreshToken = async (req, res) => {
                     res.status(200).json(accessToken);
                 })
                 .catch((error) => {
-                    return res.status(403).json({
+                    return res.status(401).json({
                         error: "Authentication Error : Sign Token",
                     });
                 });
         })
         .catch((error) => {
-            return res.status(403).json({ error: "User Authorization Error: Unverified Token" });
+            return res.status(401).json({ error: "User Authorization Error: Unverified Token" });
         });
 };

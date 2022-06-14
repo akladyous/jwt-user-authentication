@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { axiosPrivate } from "../../../api/axios.js";
+import { axiosPrivate } from '../../../util/axios'
 
 export const refreshToken = createAsyncThunk(
     "refreshToken",

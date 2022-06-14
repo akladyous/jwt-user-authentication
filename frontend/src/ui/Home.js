@@ -1,16 +1,12 @@
-import { axiosPrivate } from "../api/axios.js";
+import { axiosPrivate } from "../util/axios";
 import { useEffect, useState } from "react";
-
-import { useSelector, useDispatch } from "react-redux";
-import { userLogin } from "../auth/useAuthentication.js";
+import { useSelector } from "react-redux";
 import { userState } from "../features/users/userSlice.js";
 
 export default function Home() {
     const [counter, setCounter] = useState(0);
     const [hashedPassword, setHashedPassword] = useState("");
     const [status, setState] = useState(false);
-
-    const dispatch = useDispatch();
     const state = useSelector(userState);
 
     useEffect(() => {
