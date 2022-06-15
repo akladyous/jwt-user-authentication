@@ -40,7 +40,6 @@ import { verifyJWT } from './middleware/verifyJWT.js'
 app.get("/api/refresh", handleRefreshToken);
 app.use(verifyJWT);
 app.get("/api/test", test);
-// app.get("/test", test);
 // -------------------------------------------------
 
 app.use(missingRoutes);

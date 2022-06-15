@@ -1,6 +1,6 @@
-import { api } from './api.js'
+import { apiSlice } from './apiSlice.js'
 
-export const authApiSlice = api.injectEndpoints({
+export const authApiSlice = apiSlice.injectEndpoints({
     endpoints: build => ({
         login: build.mutation({
             query: (credentials) => ({
@@ -10,8 +10,11 @@ export const authApiSlice = api.injectEndpoints({
             }),
             keepUnusedDataFor: 5
         }),
-        logout: build.query ({
-            query: () => '/users/signout',
+        logout: build.mutation ({
+            query: () => ({
+                url: '/users/signout',
+                method: "DELETE"
+            }),
             keepUnusedDataFor: 5
         }),
         signup: build.mutation({
@@ -42,7 +45,7 @@ export const authApiSlice = api.injectEndpoints({
 
 export const {
     useLoginMutation,
-    useLogoutQuery,
+    useLogoutMutation,
     useSignupMutation,
     useUpdateUserMutation,
     useDeleteUserMutation

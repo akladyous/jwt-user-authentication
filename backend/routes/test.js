@@ -1,8 +1,6 @@
 
 export const test = (req, res, next) => {
 
-
-
     res.status(200).json([{
         user_1: { name: "alex" },
         user_2: { name: "bob" },

@@ -73,6 +73,7 @@ const baseQueryReauth = async (args, api, extraOptions) => {
 };
 
 export const tokenApiSlice = createApi({
+    reducerPath: 'tokenAPI',
     baseQuery: refreshToken,
     endpoints: builder => ({})
 })

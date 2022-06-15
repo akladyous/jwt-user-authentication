@@ -15,15 +15,14 @@ export const tokenSlice = createSlice({
         setToken: (state, action) => {
             state.status = "fulfilled";
             state.token = action.payload;
-            console.log("setToken payload : ", action.payload)
         },
         resetState: (state) => {
             state.status = "idle"
             return { ...initialState };
         },
-        testAction: (state, action) => {
-            console.log('testAction payload ', action.payload);
-        }
+        // testAction: (state, action) => {
+        //     console.log('testAction payload ', action.payload);
+        // }
     },
     extraReducers(builder) {
         builder

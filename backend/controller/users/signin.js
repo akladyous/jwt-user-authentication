@@ -45,15 +45,16 @@ export const signin = async (req, res, next) => {
         );
         user.refreshToken = refreshToken;
         user.lastLoginAt = new Date()
-        const result = await user.save();
+        await user.save();
         
-        // req.session.token = refreshToken;
-        res.cookie("token", refreshToken, {
-            maxAge: COOKIE_TIMEOUT,
-            httpOnly: true,
-            // sameSite: "None",
-            secure: true,
-        });
+        req.session.token = refreshToken;
+        // console.log('req.session.token : ', req.session)
+        // res.cookie("token", refreshToken, {
+        //     maxAge: COOKIE_TIMEOUT,
+        //     httpOnly: true,
+        //     // sameSite: "None",
+        //     secure: true,
+        // });
         res.status(200).json(accessToken);
 
     } catch (error) {

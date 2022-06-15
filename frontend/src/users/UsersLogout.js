@@ -1,16 +1,26 @@
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userState } from "../features/users/userSlice.js";
-import { userSignOut } from "../app/thunkAPI/usersThunkAPI";
+import { useLogoutMutation } from "../app/api/authApiSlice.js";
+import { resetState } from "../features/users/userSlice.js";
 
 export default function UsersLogout() {
     const dispatch = useDispatch();
     const state = useSelector(userState);
     const navigate = useNavigate();
 
+    const [logout ] = useLogoutMutation()
+    
     const handleSignOut = async (e) => {
         e.preventDefault();
-        dispatch(userSignOut());
+
+        try {
+            const result = await logout()
+            console.log('logout result ": ', result)
+            dispatch(resetState())
+        } catch (err) {
+            console.log('logout error : ', err)
+        }
         navigate('/')
     };
 

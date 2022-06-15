@@ -56,13 +56,13 @@ export const signup = async (req, res) => {
             REFRESH_TIMEOUT
         );
 
-        // req.session.token = refreshToken;
-        res.cookie("token", refreshToken, {
-            maxAge: COOKIE_TIMEOUT,
-            httpOnly: true,
-            sameSite: "None",
-            // secure: true,
-        });
+        req.session.token = refreshToken;
+        // res.cookie("token", refreshToken, {
+        //     maxAge: COOKIE_TIMEOUT,
+        //     httpOnly: true,
+        //     sameSite: "None",
+        //     secure: true,
+        // });
         res.status(200).json(accessToken);
 
     } catch (error) {

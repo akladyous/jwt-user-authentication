@@ -38,7 +38,7 @@ export const userSlice = createSlice({
             state.user = null;
         },
         resetState: () => {
-            localStorage.removeItem("token");
+            // localStorage.removeItem("token");
             return { ...initialState };
         },
         setToken: (state, action) => {

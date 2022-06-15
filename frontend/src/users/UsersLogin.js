@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userState } from "../features/users/userSlice.js";
@@ -6,6 +6,44 @@ import { useLoginMutation } from "../app/api/authApiSlice.js";
 import { verifyJWT } from "../util/verifyJWT.js";
 import { setUser, setUserState } from "../features/users/userSlice.js";
 import { _objectWithoutPropertiesLoose } from '../util/babel'
+import validate from 'validate.js'
+import {constrains} from '../util/validationConstrains'
+
+import { setToken } from '../features/token/tokenSlice.js'
+
+class InputValidation extends React.Component {
+    constructor(props){
+        super(props)
+        this.validateInput = this.validateInput.bind(this);
+        this.state = { value: "", constrains: {}, errors: "" };
+    };
+
+    validateInput(){
+        const validationError = validate.single(this.props?.value, this.props?.constrains)
+        if (validationError){
+            this.state({error: validationError})
+        }
+    }
+
+    render() {
+        return (
+            <div>
+                {this.props.validate(this.state.errors, this.validateInput)}
+            </div>
+        )
+    }
+
+}
+
+const FeedbackEmail = (props) => (
+    <div>
+        {props.errors}
+    </div>
+)
+
+// <InputValidation validate={(email, emailContrains)=>{
+//     return <FeedbackEmail value={email} constrains={emailContrains} />
+// }} />
 
 export default function UsersLogin() {
     const dispatch = useDispatch();
@@ -30,6 +68,7 @@ export default function UsersLogin() {
             const userData = verifyJWT(accessToken);
             dispatch(setUser(_objectWithoutPropertiesLoose(userData, ['iat', 'exp'])));
             dispatch(setUserState(true));
+            dispatch(setToken(accessToken))
             setEmail('')
             setPassword('')
 
@@ -42,6 +81,31 @@ export default function UsersLogin() {
             }
         }
     };
+
+    const validateInput = e =>{
+        const target = e.target;
+        const feedback = e.target.nextElementSibling;
+        let validationError = null;
+
+        if (target.value.toString().length > 0) {
+            validationError = validate.single(target.value, constrains[target.name]);
+            if ( !validationError ){
+                feedback.classList.add("valid-feedback");
+                feedback.textContent = "";
+                target.classList = 'form-control is-valid'
+
+            } else {
+                feedback.classList.add("invalid-feedback");
+                feedback.textContent = validationError[0];
+                feedback.style.display = "block";
+                target.classList = 'form-control is-invalid'
+            }
+        } else {
+            feedback.classList = ''
+            feedback.textContent = ''
+            target.classList.remove('is-valid', 'is-invalid')
+        }
+    }
 
     useEffect(() => {
         let isMounted = true;
@@ -71,7 +135,12 @@ export default function UsersLogin() {
                                     style={{ width: "25%", height: "25%" }}
                                 />
                             </div>
-                            <form onSubmit={handleForm}>
+                            <form
+                                onSubmit={handleForm}
+                                className="needs-validation"
+                                id="signin-form"
+                                noValidate
+                            >
                                 <div className="mb-2">
                                     <label
                                         htmlFor="email"
@@ -83,25 +152,33 @@ export default function UsersLogin() {
                                         type="email"
                                         name="email"
                                         className="form-control"
+                                        autoComplete="off"
                                         placeholder=""
                                         value={email}
                                         onChange={(e) =>
                                             setEmail(e.target.value)
                                         }
+                                        onBlur={validateInput}
                                     />
+                                    <div id="email-feedback"></div>
                                 </div>
                                 <div className="mb-2">
                                     <label htmlFor="password">Password</label>
                                     <input
                                         type="password"
                                         name="password"
-                                        className="form-control"
+                                        aria-describedby="inputGroupPrepend"
+                                        className="form-control has-validation"
                                         placeholder=""
                                         value={password}
                                         onChange={(e) => {
                                             setPassword(e.target.value);
                                         }}
+                                        onBlur={(e) => {
+                                            validateInput(e);
+                                        }}
                                     />
+                                    <div id="password-feedback"></div>
                                 </div>
                                 <div className="mb-2">
                                     <p
@@ -109,7 +186,7 @@ export default function UsersLogin() {
                                         className="text-center border-0 form-control"
                                         aria-describedby="response"
                                     >
-                                        { isError && errorMsg }
+                                        {isError && errorMsg}
                                     </p>
                                 </div>
                                 <div className="row justify-content-center">
@@ -121,7 +198,11 @@ export default function UsersLogin() {
                                         >
                                             Submit
                                         </button>
-                                        <p>{isLoading || isFetching ? "loading..." : ""}</p>
+                                        <p>
+                                            {isLoading || isFetching
+                                                ? "loading..."
+                                                : ""}
+                                        </p>
                                     </div>
                                 </div>
                             </form>

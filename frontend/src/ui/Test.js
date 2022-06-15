@@ -1,36 +1,29 @@
-// import { userState } from "../features/users/userSlice.js";
-// import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
+import { useGetUsersQuery, useLazyGetUsersQuery, useSetUsersMutation } from '../app/api/testApiSlice.js'
+
 import { tokenState } from "../features/token/tokenSlice.js";
-import { useGetUsersQuery } from '../features/testApiSlice.js'
 import { testAction } from "../app/thunkAPI/test/testAction.js";
 
 export default function Test() {
     const {token} = useSelector(tokenState)
     const dispatch = useDispatch();
     
+    // let [setUsers, {isError, isLoading}] = useSetUsersMutation()
+    // let {data, error} =  useGetUsersQuery()
+    const [getusers, result, lastPromiseInfo] = useLazyGetUsersQuery()
+    
+    // let [getUsers, {isLoading, isError, error}] = useGetUsersQuery()
 
-    const {
-        data: users,
-        isLoading,
-        isSuccess,
-        isError,
-        error,
-    } = useGetUsersQuery({ Headers: { Authorization: `Bearer ${token}` } });
+    // console.log('test component error : ', error)
+    // console.log('test component data : ', data)
 
-    console.log('test component error : ', error)
-    console.log('test component data : ', users)
     const handleTest = async () =>{
-        dispatch(testAction());
+        // dispatch(testAction());
+
+        getusers()
+        console.log('result : ', result)
+        console.log('lastPromiseInfo : ', lastPromiseInfo)
     };
-
-    // useEffect(() => {
-    //     let isMounted = true;
-
-    //     return () => {
-    //         isMounted = false;
-    //     };
-    // }, []);
 
     return (
         <div className="container">
