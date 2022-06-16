@@ -1,74 +1,96 @@
-import { useState, useCallback } from "react";
-// import { useNavigate } from "react-router-dom";
+import React, { useState, useCallback } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { userState } from "../features/users/userSlice.js";
-import { userSignUp } from "../app/thunkAPI/usersThunkAPI";
+import { useSignupMutation } from "../app/api/authApiSlice.js";
+import { setToken } from "../features/token/tokenSlice.js";
+import { verifyJWT } from "../util/verifyJWT.js";
+import { setUser, setUserState } from "../features/users/userSlice.js";
+import { _objectWithoutPropertiesLoose } from "../util/babel";
+import validate from "validate.js";
+import { constrains, validFeedback, invalidFeedback, removeFeedback } from "../util/validation";
 
 export default function UsersSignup() {
     const state = useSelector(userState);
     const dispatch = useDispatch();
-    // const [email, setEmail] = useState("");
-    // const [password, setPassword] = useState("");
-    // const [passwordConfirmation, setPasswordConfirmation] = useState("");
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const from = location.state?.from?.pathname || "/";
+
+    const [message, setMessage] = useState('')
     const [formData, setFormData] = useState({
         email: "",
         password: "",
         passwordConfirmation: "",
     });
-    function isValidForm() {
-        return [
-            formData.password === formData.passwordConfirmation,
-            formData.email !== "",
-        ].every(Boolean);
-    }
-    // const navigate = useNavigate();
 
-    async function handleForm(e) {
-        e.preventDefault();
-        const signal = new AbortController().signal;
-        if (isValidForm && !state.isAuthenticated) {
-            dispatch(
-                userSignUp(
-                    { email: formData.email, password: formData.password },
-                    { signal }
-                )
-            );
-        }
-    }
+    const [signup, { isLoading, isFetching }] = useSignupMutation();
 
     const handleChange = useCallback((e) => {
         setFormData((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }));
+        // let pwdValue = document.querySelector("[name='password']").value
+        if (e.target.name === 'passwordConfirmation' ) {
+            if (e.target.value !== document.querySelector("[name='password']").value)
+            e.target.setCustomValidity("password not matching")
+        }
     }, []);
 
-    const isValidPassword = () => {
-        if (formData.password.length === 0) return "form-control";
-        if (formData.password.length >= 1 && formData.password.length < 6)
-            return "form-control is-invalid";
-
-        if (formData.password === formData.passwordConfirmation) {
-            return "form-control is-valid";
-        } else {
-            return "form-control is-invalid";
+    const handleForm = useCallback(async (e) => {
+        e.preventDefault();
+        const formValidation = validateInput(e)
+        if (formValidation) return
+        try {
+            const accessToken = await signup({ email: formData.email, password: formData.password}).unwrap();
+            const userData = verifyJWT(accessToken);
+            dispatch(
+                setUser(_objectWithoutPropertiesLoose(userData, ["iat", "exp"]))
+            );
+            dispatch(setUserState(true));
+            dispatch(setToken(accessToken));
+            setFormData({ email: "", password: "", passwordConfirmation: "" });
+            setMessage('Login successfully completed')
+            setTimeout(() => {
+                navigate(from, { replace: true });
+            }, 1500)
+        } catch (err) {
+            dispatch(setUserState(false));
+            if (err?.status === "FETCH_ERROR") {
+                setMessage("internal server error");
+            } else {
+                setMessage(err.data.error.message);
+            }
         }
-    };
+    }, [formData]);
 
-    const isValidPasswordConfirmation = () => {
-        if (formData.passwordConfirmation.length === 0) return "form-control";
-        if (
-            formData.passwordConfirmation.length >= 1 &&
-            formData.passwordConfirmation.length < 6
-        )
-            return "form-control is-invalid";
+    const validateInput = useCallback((e) => {
+        let target = e.target;
+        let validationErrors = null;
 
-        if (formData.password === formData.passwordConfirmation) {
-            return "form-control is-valid";
+        if (target.tagName.toLowerCase() === 'form') {
+            validationErrors = validate(e.target, constrains)
+            if (!validationErrors) return null;
         } else {
-            return "form-control is-invalid";
+            if (target.value.toString().length > 0) {
+                let errors = validate.single(target.value, constrains[target.name], { format: 'detailed' } )
+                if (errors) {
+                    validationErrors = {[target.name]: errors}
+                } else {
+                    validFeedback.call(target)
+                    return null;
+                }
+            } else {
+                removeFeedback.call(target)
+                return null;
+            }
         }
-    };
+        invalidFeedback(validationErrors)
+        return true
+
+    }, []);
 
     return (
         <div className="container my-3">
@@ -87,7 +109,12 @@ export default function UsersSignup() {
                                     style={{ width: "25%", height: "25%" }}
                                 />
                             </div>
-                            <form onSubmit={handleForm}>
+                            <form
+                                id="signup-form"
+                                className="needs-validation"
+                                noValidate
+                                onSubmit={handleForm}
+                            >
                                 <div className="mb-2">
                                     <label
                                         htmlFor="email"
@@ -99,11 +126,14 @@ export default function UsersSignup() {
                                         type="email"
                                         name="email"
                                         required
+                                        autoComplete="off"
                                         placeholder=""
                                         className="form-control"
                                         value={formData.email}
                                         onChange={handleChange}
+                                        onBlur={validateInput}
                                     />
+                                    <div id="email-feedback" name="email"></div>
                                 </div>
                                 {state.error.email ? (
                                     <div className="invalid-feedback">
@@ -114,74 +144,48 @@ export default function UsersSignup() {
                                 <div className="mb-2">
                                     <label htmlFor="password">Password</label>
                                     <input
-                                        id="pass"
                                         type="password"
                                         name="password"
-                                        className={isValidPassword()}
-                                        placeholder=""
                                         required
+                                        autoComplete="off"
+                                        placeholder=""
+                                        className="form-control"
                                         value={formData.password}
                                         onChange={handleChange}
+                                        onBlur={validateInput}
                                     />
-                                    <div className="invalid-feedback">
-                                        {(() => {
-                                            if (formData.password.length < 6) {
-                                                return "Minimum lenght is 6 characters";
-                                            }
-                                            if (
-                                                formData.password.length >= 6 &&
-                                                formData.password !==
-                                                    formData.passwordConfirmation
-                                            ) {
-                                                return "Passowrd mismatch";
-                                            }
-                                        })()}
-                                    </div>
+                                    <div id="password-feedback"></div>
                                 </div>
 
                                 <div className="mb-2">
+                                    <label htmlFor="passwordConfirmation">
+                                        Password confirmation
+                                    </label>
                                     <input
                                         type="password"
                                         name="passwordConfirmation"
-                                        className={isValidPasswordConfirmation()}
-                                        placeholder=""
                                         required
+                                        autoComplete="off"
+                                        placeholder=""
+                                        className="form-control"
                                         value={formData.passwordConfirmation}
                                         onChange={handleChange}
+                                        onBlur={validateInput}
                                     />
-                                    <div className="invalid-feedback">
-                                        {(() => {
-                                            if (
-                                                formData.passwordConfirmation
-                                                    .length < 6
-                                            )
-                                                return "Minimum lenght is 6 characters";
-                                            if (
-                                                formData.password !==
-                                                formData.passwordConfirmation
-                                            )
-                                                return "Passowrd mismatch";
-                                        })()}
-                                    </div>
+                                    <div
+                                        id="passwordConfirmation-feedback"
+                                        style={{ whiteSpace: "pre" }}
+                                    ></div>
                                 </div>
-
-                                {state.error.message ? (
-                                    <div
-                                        className="alert alert-danger"
-                                        role="alert"
+                                <div className="mb-2">
+                                    <p
+                                        disabled
+                                        className="text-center border-0 form-control"
+                                        aria-describedby="response"
                                     >
-                                        {state.error.message}
-                                    </div>
-                                ) : null}
-
-                                {state.message !== "" ? (
-                                    <div
-                                        className="alert alert-success"
-                                        role="alert"
-                                    >
-                                        {state.message}
-                                    </div>
-                                ) : null}
+                                        {message}
+                                    </p>
+                                </div>
 
                                 <div className="row justify-content-center">
                                     <div className="col col-auto">
@@ -192,6 +196,11 @@ export default function UsersSignup() {
                                         >
                                             Submit
                                         </button>
+                                        <p>
+                                            {isLoading || isFetching
+                                                ? "loading..."
+                                                : ""}
+                                        </p>
                                     </div>
                                 </div>
                             </form>

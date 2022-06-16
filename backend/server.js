@@ -26,6 +26,7 @@ app.use(handleCors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "/public")));
 
+
 app.use("/", root);
 app.use("/delay", delay);
 app.use("/api", users);

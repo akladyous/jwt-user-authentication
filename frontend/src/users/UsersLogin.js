@@ -11,40 +11,6 @@ import {constrains} from '../util/validationConstrains'
 
 import { setToken } from '../features/token/tokenSlice.js'
 
-class InputValidation extends React.Component {
-    constructor(props){
-        super(props)
-        this.validateInput = this.validateInput.bind(this);
-        this.state = { value: "", constrains: {}, errors: "" };
-    };
-
-    validateInput(){
-        const validationError = validate.single(this.props?.value, this.props?.constrains)
-        if (validationError){
-            this.state({error: validationError})
-        }
-    }
-
-    render() {
-        return (
-            <div>
-                {this.props.validate(this.state.errors, this.validateInput)}
-            </div>
-        )
-    }
-
-}
-
-const FeedbackEmail = (props) => (
-    <div>
-        {props.errors}
-    </div>
-)
-
-// <InputValidation validate={(email, emailContrains)=>{
-//     return <FeedbackEmail value={email} constrains={emailContrains} />
-// }} />
-
 export default function UsersLogin() {
     const dispatch = useDispatch();
     const state = useSelector(userState);
@@ -53,12 +19,11 @@ export default function UsersLogin() {
     const location = useLocation();
     const from = location.state?.from?.pathname || "/";
 
-    
-    let [ login,{ isLoading, isFetching, isError, } ] = useLoginMutation();
+    let [ login,{ isLoading, isFetching } ] = useLoginMutation();
     
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [errorMsg, setErrorMsg] = useState('')
+    const [message, setMessage] = useState('')
 
     const handleForm = async (e) => {
         e.preventDefault();
@@ -71,13 +36,16 @@ export default function UsersLogin() {
             dispatch(setToken(accessToken))
             setEmail('')
             setPassword('')
-
+            setMessage('Login successfully completed')
+            setTimeout(() => {
+                navigate(from, { replace: true });
+            }, 1500)
         } catch (err) {
             dispatch(setUserState(false));
             if (err?.status === "FETCH_ERROR") {
-                setErrorMsg("internal server error")
+                setMessage("internal server error")
             } else {
-                setErrorMsg(err.data.error.message)
+                setMessage(err.data.error.message)
             }
         }
     };
@@ -109,9 +77,9 @@ export default function UsersLogin() {
 
     useEffect(() => {
         let isMounted = true;
-        if (state.isAuthenticated && isMounted === true) {
-            navigate(from, { replace: true });
-        }
+        // if (state.isAuthenticated && isMounted === true) {
+        //     navigate(from, { replace: true });
+        // }
 
         return () => {
             isMounted = false;
@@ -136,10 +104,10 @@ export default function UsersLogin() {
                                 />
                             </div>
                             <form
-                                onSubmit={handleForm}
-                                className="needs-validation"
                                 id="signin-form"
+                                className="needs-validation"
                                 noValidate
+                                onSubmit={handleForm}
                             >
                                 <div className="mb-2">
                                     <label
@@ -186,7 +154,7 @@ export default function UsersLogin() {
                                         className="text-center border-0 form-control"
                                         aria-describedby="response"
                                     >
-                                        {isError && errorMsg}
+                                        {message}
                                     </p>
                                 </div>
                                 <div className="row justify-content-center">
@@ -198,7 +166,11 @@ export default function UsersLogin() {
                                         >
                                             Submit
                                         </button>
-                                        <p>
+                                        <p 
+                                            disabled
+                                            className="text-center border-0 form-control"
+                                            aria-describedby="response"
+                                        >
                                             {isLoading || isFetching
                                                 ? "loading..."
                                                 : ""}

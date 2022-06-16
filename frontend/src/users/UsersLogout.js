@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { userState } from "../features/users/userSlice.js";
 import { useLogoutMutation } from "../app/api/authApiSlice.js";
 import { resetState } from "../features/users/userSlice.js";
+import { setToken } from "../features/token/tokenSlice.js";
 
 export default function UsersLogout() {
     const dispatch = useDispatch();
@@ -18,6 +19,7 @@ export default function UsersLogout() {
             const result = await logout()
             console.log('logout result ": ', result)
             dispatch(resetState())
+            dispatch(setToken(null))
         } catch (err) {
             console.log('logout error : ', err)
         }

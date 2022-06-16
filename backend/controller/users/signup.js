@@ -6,7 +6,7 @@ import {
     REFRESH_TIMEOUT,
     ACCESS_TOKEN_SECRET,
     ACCESS_TIMEOUT,
-    COOKIE_TIMEOUT,
+    // COOKIE_TIMEOUT,
 } from "../../config/env.js";
 
 const handleErrors = (err) => {
@@ -23,12 +23,13 @@ const handleErrors = (err) => {
 };
 
 export const signup = async (req, res) => {
-    if (!req.body?.email || !req.body?.password) {
+    const { email, password } = req.body;
+    console.log('response.body', req.body)
+    if ( !email || !password ) {
         return res
         .status(409)
         .json({ error: { message: "Missing e-mail or password" } });
     }
-    const { email, password } = req.body;
     
     try {
         const userExists = await User.findOne({ email }).exec();
