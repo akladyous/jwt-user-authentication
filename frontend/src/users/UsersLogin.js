@@ -7,7 +7,7 @@ import { verifyJWT } from "../util/verifyJWT.js";
 import { setUser, setUserState } from "../features/users/userSlice.js";
 import { _objectWithoutPropertiesLoose } from '../util/babel'
 import validate from 'validate.js'
-import {constrains} from '../util/validationConstrains'
+import {constrains} from '../util/validation'
 
 import { setToken } from '../features/token/tokenSlice.js'
 

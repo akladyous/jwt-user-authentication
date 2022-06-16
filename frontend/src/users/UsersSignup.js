@@ -32,11 +32,6 @@ export default function UsersSignup() {
             ...prevState,
             [e.target.name]: e.target.value,
         }));
-        // let pwdValue = document.querySelector("[name='password']").value
-        if (e.target.name === 'passwordConfirmation' ) {
-            if (e.target.value !== document.querySelector("[name='password']").value)
-            e.target.setCustomValidity("password not matching")
-        }
     }, []);
 
     const handleForm = useCallback(async (e) => {
