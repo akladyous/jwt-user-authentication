@@ -1,0 +1,15 @@
+{
+    "tech stack": [
+        "Node.js",
+        "Express.js",
+        "MongoDB",
+        "JSON Web Token (JWT)",
+        "express-session",
+        "CORS",
+        "React.js",
+        "Redux Toolkit",
+        "React Router DOM",
+        "Axios",
+        "validate.js"
+    ]
+}
